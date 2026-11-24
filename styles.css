@@ -1,0 +1,33 @@
+ @import url('https://fonts.googleapis.com/css2?family=Story+Script&display=swap');
+
+body { font-family: 'Story Script', cursive, bold; background: rgb(247, 243, 237); color: #000000; margin: 0; line-height: 1.5; }
+
+svg{ align-items: center; justify-content: center; }
+
+header { background: #bde4ff; color: #000000; padding: 20px; text-align: center; }
+
+header p {
+    font-size: 20px;
+}
+nav { background: #defc8e; padding: 10px; text-align: center; }
+
+nav a { color: #000000; background: #89adff; padding: 8px 14px; margin: 4px; display: inline-block; border-radius: 6px; }
+
+nav a:hover, nav a:focus { background: #ef7148; }
+
+main { max-width: 640px; margin: 24px auto; padding: 0 16px; }
+
+.card { background: #bde4ff; border: 2px solid #000000; border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+
+label { display: block; margin-top: 12px; font-weight: bold; }
+
+input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 2px solid #000000; border-radius: 6px; font-size: 1em; }
+
+button, .big-link { background: #89adff; color: #000000; border: 0; padding: 10px 18px; margin-top: 16px; font-size: 1em; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; }
+
+button:hover, .big-link:hover { background: #ef7148; }
+
+#result { background: #000000; border-left: 8px solid #000000; padding: 14px; margin-top: 18px; display: none; }
+
+footer { background: #5F9EA0; color: #000000; text-align: center; padding: 14px; font-size: 0.9em; }
+ 

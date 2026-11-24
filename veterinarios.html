@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mejores veterinarios | Aphalta Care</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><h1>Aphalta Care</h1><p>Veterinarios mejor valorados</p></header>
+<nav><a href="index.html">Inicio</a><a href="vacunacion.html">Vacunación</a><a href="alimento.html">Alimento</a><a href="veterinarios.html">Mejores veterinarios</a></nav>
+<main>
+<div class="card">
+<h2>Elige tu estado</h2>
+<label for="estado">Estado</label>
+<select id="estado">
+<option>Aguascalientes</option>
+<option>Baja California</option>
+<option>Baja California Sur</option>
+<option>Campeche</option>
+<option>Chiapas</option>
+<option>Chihuahua</option>
+<option>Ciudad de México</option>
+<option>Coahuila</option>
+<option>Colima</option>
+<option>Durango</option>
+<option>Guanajuato</option>
+<option>Guerrero</option>
+<option>Hidalgo</option>
+<option>Jalisco</option>
+<option>Estado de México</option>
+<option>Michoacán</option>
+<option>Morelos</option>
+<option>Nayarit</option>
+<option>Nuevo León</option>
+<option>Oaxaca</option>
+<option>Puebla</option>
+<option>Querétaro</option>
+<option>Quintana Roo</option>
+<option>San Luis Potosí</option>
+<option>Sinaloa</option>
+<option>Sonora</option>
+<option>Tabasco</option>
+<option>Tamaulipas</option>
+<option>Tlaxcala</option>
+<option>Veracruz</option>
+<option>Yucatán</option>
+<option>Zacatecas</option>
+</select>
+<button id="buscar">Ver mejores veterinarios en Google Maps</button>
+</div>
+<div id="resultado"></div>
+</main>
+<script>
+document.getElementById("buscar").addEventListener("click", function () {
+  var estado = document.getElementById("estado").value;
+
+  // Búsqueda en Google Maps; los resultados muestran las calificaciones
+  var consulta = encodeURIComponent("mejores veterinarios en " + estado + ", México");
+  var url = "https://www.google.com/maps/search/?api=1&query=" + consulta;
+  var caja = document.getElementById("resultado");
+  caja.style.display = "block";
+  caja.innerHTML = "Veterinarios mejor valorados en <strong>" + estado + "</strong>: " +
+    "<a href='" + url + "' target='_blank' rel='noopener'>abrir resultados de Google</a>.";
+});
+</script>
+</body>
+</html>

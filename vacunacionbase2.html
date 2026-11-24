@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vacunación | Aphalta Care</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header><h1>Aphalta Care</h1><p>Próxima fecha de vacunación</p></header>
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="vacunacionbase2.html">Vacunación</a>
+    <a href="alimento.html">Alimento</a>
+    <a href="veterinarios.html">Mejores veterinarios</a>
+</nav>
+<main>
+<div class="card">
+<h2>Datos de la mascota</h2>
+<form id="formMascota">
+<label for="nombre">Nombre de la mascota</label>
+<input type="text" id="nombre" required>
+<label for="especie">Tipo de mascota</label>
+<select id="especie">
+<option value="perro">Perro</option>
+<option value="gato">Gato</option>
+</select>
+<label for="raza">Raza</label>
+<input type="text" id="raza" required>
+<label for="edad">Edad (en meses)</label>
+<input type="number" id="edad" min="0" max="300" required>
+<label for="vacuna">Tipo de vacuna aplicada</label>
+<select id="vacuna"></select>
+<label for="ultima">Fecha de la última vacuna</label>
+<input type="date" id="ultima" required>
+<button type="submit">Calcular próxima fecha</button>
+</form>
+</div>
+<div id="resultado"></div>
+</main>
+<script>
+// Lista de vacunas por mascota.
+// jovenDias: cada cuántos días se repite si es cachorro/gatito (null = no aplica)
+// adultoMeses: cada cuántos meses se repite en adultos
+var vacunas = {
+  perro: [
+    { nombre: "Múltiple (parvovirus, moquillo, hepatitis)", jovenDias: 21, adultoMeses: 12 },
+    { nombre: "Rabia", jovenDias: null, adultoMeses: 12 },
+    { nombre: "Leptospirosis", jovenDias: 21, adultoMeses: 12 },
+    { nombre: "Bordetella (tos de las perreras)", jovenDias: null, adultoMeses: 12 }
+  ],
+  gato: [
+    { nombre: "Triple felina", jovenDias: 21, adultoMeses: 12 },
+    { nombre: "Rabia", jovenDias: null, adultoMeses: 12 },
+    { nombre: "Leucemia felina", jovenDias: 21, adultoMeses: 12 }
+  ]
+};
+
+var selEspecie = document.getElementById("especie");
+var selVacuna = document.getElementById("vacuna");
+
+// Llena la lista de vacunas según la mascota elegida
+function llenarVacunas() {
+  var lista = vacunas[selEspecie.value];
+  selVacuna.innerHTML = "";
+  for (var i = 0; i < lista.length; i++) {
+    var opcion = document.createElement("option");
+    opcion.value = i;
+    opcion.textContent = lista[i].nombre;
+    selVacuna.appendChild(opcion);
+  }
+}
+selEspecie.addEventListener("change", llenarVacunas);  // se actualiza al cambiar de mascota
+llenarVacunas();                                       // y una vez al abrir la página
+
+document.getElementById("formMascota").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var nombre = document.getElementById("nombre").value;
+  var raza = document.getElementById("raza").value;
+  var edad = Number(document.getElementById("edad").value);
+  var ultima = new Date(document.getElementById("u  ltima").value + "T00:00:00");
+  var vacuna = vacunas[selEspecie.value][selVacuna.value];
+  var proxima = new Date(ultima);
+  var motivo;
+
+  if (edad < 4 && vacuna.jovenDias !== null) {          // serie de refuerzos para los más jóvenes
+    proxima.setDate(proxima.getDate() + vacuna.jovenDias);
+    motivo = "Los cachorros y gatitos necesitan refuerzos cada 3 semanas hasta cerca de las 16 semanas de edad.";
+  } else {                                              // refuerzo normal de adultos
+    proxima.setMonth(proxima.getMonth() + vacuna.adultoMeses);
+    motivo = "Esta vacuna se refuerza cada " + vacuna.adultoMeses + " meses.";
+    if (edad < 4) motivo += " Si es la primera dosis, tu veterinario te dirá cuándo aplicarla.";
+  }
+
+  var texto = proxima.toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  var caja = document.getElementById("resultado");
+  caja.style.display = "block";
+  caja.innerHTML = "<strong>" + nombre + "</strong> (" + selEspecie.value + ", " + raza + "): próxima vacuna <em>" +
+    vacuna.nombre + "</em> el <strong>" + texto + "</strong>.<br>" + motivo;
+});
+</script>
+</body>
+</html>
