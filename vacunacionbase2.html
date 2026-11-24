@@ -4,100 +4,273 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vacunación | Aphalta Care</title>
+
 <link rel="stylesheet" href="styles.css">
+
 </head>
+
 <body>
-<header><h1>Aphalta Care</h1><p>Próxima fecha de vacunación</p></header>
+
+<header>
+  <h1>Aphalta Care</h1>
+  <p>Próxima fecha de vacunación</p>
+</header>
+
 <nav>
-    <a href="index.html">Inicio</a>
-    <a href="vacunacionbase2.html">Vacunación</a>
-    <a href="alimento.html">Alimento</a>
-    <a href="veterinarios.html">Mejores veterinarios</a>
+  <a href="index.html">Inicio</a>
+  <a href="vacunacionbase2.html">Vacunación</a>
+  <a href="alimento.html">Alimento</a>
+  <a href="veterinarios.html">Mejores veterinarios</a>
 </nav>
+
 <main>
-<div class="card">
-<h2>Datos de la mascota</h2>
-<form id="formMascota">
-<label for="nombre">Nombre de la mascota</label>
-<input type="text" id="nombre" required>
-<label for="especie">Tipo de mascota</label>
-<select id="especie">
-<option value="perro">Perro</option>
-<option value="gato">Gato</option>
-</select>
-<label for="raza">Raza</label>
-<input type="text" id="raza" required>
-<label for="edad">Edad (en meses)</label>
-<input type="number" id="edad" min="0" max="300" required>
-<label for="vacuna">Tipo de vacuna aplicada</label>
-<select id="vacuna"></select>
-<label for="ultima">Fecha de la última vacuna</label>
-<input type="date" id="ultima" required>
-<button type="submit">Calcular próxima fecha</button>
-</form>
-</div>
-<div id="resultado"></div>
+
+  <div class="card">
+
+    <h2>Datos de la mascota</h2>
+    <!-- El formulario recoge los datos; el script los lee -->
+    <form id="fMascota">
+      <label for="nombre">Nombre de la mascota</label>
+      <input type="text" id="nombre" required>
+
+      <label for="tipo">Tipo de mascota</label>
+      <select id="tipo" required>
+        <option value="">Selecciona...</option>
+        <option value="perro">Perro</option>
+        <option value="gato">Gato</option>
+      </select>
+
+      <label for="vacuna">Vacuna</label>
+      <select id="vacuna" required disabled>
+        <option value="">Primero elige el tipo de mascota</option>
+      </select>
+
+      <label for="raza">Raza</label>
+      <input type="text" id="raza" required>
+
+      <label for="edad">Edad (en meses)</label>
+      <input type="number" id="edad" min="0" max="300" required>
+
+      <label for="primera">
+        <input type="checkbox" id="primera"> Es la primera vez que se aplica esta vacuna
+      </label>
+
+      <div id="bloqueUltima">
+        <label for="ultima">Fecha de la última dosis de esa vacuna</label>
+        <input type="date" id="ultima" required>
+      </div>
+
+      <button type="submit">Calcular próxima fecha</button>
+    </form>
+
+  </div>
+
+  <div id="resultado"></div>
+
 </main>
+
 <script>
-// Lista de vacunas por mascota.
-// jovenDias: cada cuántos días se repite si es cachorro/gatito (null = no aplica)
-// adultoMeses: cada cuántos meses se repite en adultos
-var vacunas = {
-  perro: [
-    { nombre: "Múltiple (parvovirus, moquillo, hepatitis)", jovenDias: 21, adultoMeses: 12 },
-    { nombre: "Rabia", jovenDias: null, adultoMeses: 12 },
-    { nombre: "Leptospirosis", jovenDias: 21, adultoMeses: 12 },
-    { nombre: "Bordetella (tos de las perreras)", jovenDias: null, adultoMeses: 12 }
-  ],
-  gato: [
-    { nombre: "Triple felina", jovenDias: 21, adultoMeses: 12 },
-    { nombre: "Rabia", jovenDias: null, adultoMeses: 12 },
-    { nombre: "Leucemia felina", jovenDias: 21, adultoMeses: 12 }
-  ]
+
+/*
+  Catálogo de vacunas por tipo de mascota.
+  - cachorroDias: intervalo en días entre refuerzos si la mascota tiene menos de 4 meses.
+  - adultoMeses: intervalo en meses para mascotas de 4 meses o más.
+  - edadMinima (opcional): edad mínima en meses para aplicar la vacuna.
+*/
+var VACUNAS = {
+  perro: {
+    multiple: {
+      nombre: "Múltiple (quíntuple / séxtuple)",
+      cachorroDias: 21,
+      adultoMeses: 12,
+      motivoCachorro: "Los cachorros necesitan refuerzos de la vacuna múltiple cada 3 semanas hasta cerca de las 16 semanas de edad.",
+      motivoAdulto: "Los perros adultos normalmente necesitan un refuerzo anual de la vacuna múltiple."
+    },
+    rabia: {
+      nombre: "Antirrábica",
+      cachorroDias: null,
+      adultoMeses: 12,
+      edadMinima: 3,
+      motivoCachorro: "La vacuna antirrábica se aplica a partir de los 3 meses de edad.",
+      motivoAdulto: "La vacuna antirrábica se refuerza cada año."
+    },
+    bordetella: {
+      nombre: "Bordetella (tos de las perreras)",
+      cachorroDias: 21,
+      adultoMeses: 12,
+      motivoCachorro: "En cachorros expuestos a otros perros, la dosis de bordetella puede repetirse a las 3 semanas.",
+      motivoAdulto: "Bordetella suele reforzarse cada año (cada 6 meses si el perro convive mucho con otros perros o va a guarderías)."
+    },
+    leptospirosis: {
+      nombre: "Leptospirosis",
+      cachorroDias: 21,
+      adultoMeses: 12,
+      motivoCachorro: "La leptospirosis requiere una segunda dosis 3 a 4 semanas después de la primera.",
+      motivoAdulto: "La leptospirosis se refuerza cada año."
+    }
+  },
+  gato: {
+    triple: {
+      nombre: "Triple felina (panleucopenia, rinotraqueítis y calicivirus)",
+      cachorroDias: 21,
+      adultoMeses: 12,
+      motivoCachorro: "Los gatitos necesitan refuerzos de la triple felina cada 3 a 4 semanas hasta cerca de las 16 semanas de edad.",
+      motivoAdulto: "Los gatos adultos normalmente necesitan un refuerzo anual de la triple felina."
+    },
+    leucemia: {
+      nombre: "Leucemia felina (FeLV)",
+      cachorroDias: 28,
+      adultoMeses: 12,
+      edadMinima: 2,
+      motivoCachorro: "La leucemia felina se aplica en 2 dosis separadas por 3 a 4 semanas, desde los 2 meses de edad.",
+      motivoAdulto: "La leucemia felina se refuerza cada año en gatos con acceso al exterior o que conviven con otros gatos."
+    },
+    rabia: {
+      nombre: "Antirrábica",
+      cachorroDias: null,
+      adultoMeses: 12,
+      edadMinima: 3,
+      motivoCachorro: "La vacuna antirrábica se aplica a partir de los 3 meses de edad.",
+      motivoAdulto: "La vacuna antirrábica se refuerza cada año."
+    }
+  }
 };
 
-var selEspecie = document.getElementById("especie");
+var selTipo = document.getElementById("tipo");
 var selVacuna = document.getElementById("vacuna");
 
-// Llena la lista de vacunas según la mascota elegida
-function llenarVacunas() {
-  var lista = vacunas[selEspecie.value];
+// Cuando cambia el tipo de mascota, se llenan las vacunas correspondientes
+selTipo.addEventListener("change", function () {
+  var tipo = selTipo.value;
   selVacuna.innerHTML = "";
-  for (var i = 0; i < lista.length; i++) {
-    var opcion = document.createElement("option");
-    opcion.value = i;
-    opcion.textContent = lista[i].nombre;
-    selVacuna.appendChild(opcion);
-  }
-}
-selEspecie.addEventListener("change", llenarVacunas);  // se actualiza al cambiar de mascota
-llenarVacunas();                                       // y una vez al abrir la página
 
-document.getElementById("formMascota").addEventListener("submit", function (e) {
-  e.preventDefault();
+  if (!tipo) {
+    selVacuna.disabled = true;
+    selVacuna.innerHTML = '<option value="">Primero elige el tipo de mascota</option>';
+    return;
+  }
+
+  var opcionVacia = document.createElement("option");
+  opcionVacia.value = "";
+  opcionVacia.textContent = "Selecciona una vacuna...";
+  selVacuna.appendChild(opcionVacia);
+
+  var lista = VACUNAS[tipo];
+  for (var clave in lista) {
+    var op = document.createElement("option");
+    op.value = clave;
+    op.textContent = lista[clave].nombre;
+    selVacuna.appendChild(op);
+  }
+  selVacuna.disabled = false;
+});
+
+// Evita que el texto escrito por el usuario se interprete como HTML
+function escapar(texto) {
+  var div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
+function formatear(fecha) {
+  return fecha.toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
+var chkPrimera = document.getElementById("primera");
+var bloqueUltima = document.getElementById("bloqueUltima");
+var inputUltima = document.getElementById("ultima");
+
+// Si es la primera vacuna, no se pide la fecha de la última dosis
+chkPrimera.addEventListener("change", function () {
+  var esPrimera = chkPrimera.checked;
+  bloqueUltima.style.display = esPrimera ? "none" : "block";
+  inputUltima.required = !esPrimera;
+  if (esPrimera) { inputUltima.value = ""; }
+});
+
+document.getElementById("fMascota").addEventListener("submit", function (e) {
+
+  e.preventDefault();                       // evita que la página se recargue
+
   var nombre = document.getElementById("nombre").value;
+  var tipo = selTipo.value;
   var raza = document.getElementById("raza").value;
   var edad = Number(document.getElementById("edad").value);
-  var ultima = new Date(document.getElementById("u  ltima").value + "T00:00:00");
-  var vacuna = vacunas[selEspecie.value][selVacuna.value];
+  var vacuna = VACUNAS[tipo][selVacuna.value];
+  var esPrimera = chkPrimera.checked;
+
+  var hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  var ultima;                               // fecha de la dosis de referencia
+  var recomendada = null;                   // solo se usa si es la primera vacuna
+  var edadEnDosis = edad;
+  var esperaEdad = false;
+
+  if (esPrimera) {
+    recomendada = new Date(hoy);
+    if (vacuna.edadMinima && edad < vacuna.edadMinima) {
+      // Aún no tiene la edad mínima: la primera dosis será cuando la cumpla
+      recomendada.setMonth(recomendada.getMonth() + (vacuna.edadMinima - edad));
+      edadEnDosis = vacuna.edadMinima;
+      esperaEdad = true;
+    } else {
+      // Día recomendado dentro de la próxima semana: en 3 días, evitando domingo
+      recomendada.setDate(recomendada.getDate() + 3);
+      if (recomendada.getDay() === 0) { recomendada.setDate(recomendada.getDate() + 1); }
+    }
+    ultima = recomendada;
+  } else {
+    ultima = new Date(inputUltima.value + "T00:00:00");
+  }
+
   var proxima = new Date(ultima);
   var motivo;
 
-  if (edad < 4 && vacuna.jovenDias !== null) {          // serie de refuerzos para los más jóvenes
-    proxima.setDate(proxima.getDate() + vacuna.jovenDias);
-    motivo = "Los cachorros y gatitos necesitan refuerzos cada 3 semanas hasta cerca de las 16 semanas de edad.";
-  } else {                                              // refuerzo normal de adultos
+  if (!esPrimera && vacuna.edadMinima && edad < vacuna.edadMinima) {
+    // Todavía no tiene la edad para esta vacuna: se calcula cuándo la cumplirá
+    proxima = new Date(hoy);
+    proxima.setMonth(proxima.getMonth() + (vacuna.edadMinima - edad));
+    motivo = vacuna.motivoCachorro + " La fecha mostrada es aproximada, cuando tu mascota cumpla esa edad.";
+  } else if (edadEnDosis < 4 && vacuna.cachorroDias) {
+    // Cachorros y gatitos: serie de refuerzos
+    proxima.setDate(proxima.getDate() + vacuna.cachorroDias);
+    motivo = vacuna.motivoCachorro;
+  } else {
+    // Mascotas mayores: refuerzo periódico
     proxima.setMonth(proxima.getMonth() + vacuna.adultoMeses);
-    motivo = "Esta vacuna se refuerza cada " + vacuna.adultoMeses + " meses.";
-    if (edad < 4) motivo += " Si es la primera dosis, tu veterinario te dirá cuándo aplicarla.";
+    motivo = vacuna.motivoAdulto;
   }
 
-  var texto = proxima.toLocaleDateString("es-MX", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  var aviso = "";
+  if (!esPrimera && proxima < hoy) {
+    aviso = "<br><em>Esta fecha ya pasó: te recomendamos acudir con tu veterinario lo antes posible.</em>";
+  }
+
+  var html = "<strong>" + escapar(nombre) + "</strong> (" + escapar(tipo) + ", " + escapar(raza) + ")<br>" +
+             "Vacuna: <strong>" + escapar(vacuna.nombre) + "</strong><br>";
+
+  if (esPrimera) {
+    html += "Primera dosis recomendada: <strong>" + formatear(recomendada) + "</strong>";
+    if (esperaEdad) {
+      html += " (cuando tu mascota cumpla la edad mínima de " + vacuna.edadMinima + " meses).<br>";
+    } else {
+      html += " (dentro de la próxima semana).<br>";
+    }
+    html += "Siguiente dosis: <strong>" + formatear(proxima) + "</strong>.<br>";
+  } else {
+    html += "Próxima dosis: <strong>" + formatear(proxima) + "</strong>.<br>";
+  }
+
+  html += escapar(motivo) + aviso;
+
   var caja = document.getElementById("resultado");
   caja.style.display = "block";
-  caja.innerHTML = "<strong>" + nombre + "</strong> (" + selEspecie.value + ", " + raza + "): próxima vacuna <em>" +
-    vacuna.nombre + "</em> el <strong>" + texto + "</strong>.<br>" + motivo;
+  caja.innerHTML = html;
 });
 </script>
+
+<footer>Aphalta Care. Estas son guías generales; confirma siempre con tu veterinario.</footer>
+
 </body>
 </html>
